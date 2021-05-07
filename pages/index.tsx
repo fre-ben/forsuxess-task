@@ -1,7 +1,9 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
+import { xmlParse } from "../server/xmlParser";
 
-export default function Home() {
+export default function Home({ parsedXml }) {
+  const data = parsedXml;
   return (
     <div className={styles.container}>
       <Head>
@@ -12,4 +14,11 @@ export default function Home() {
       <main className={styles.main}></main>
     </div>
   );
+}
+
+export async function getStaticProps() {
+  const parsedXml = xmlParse("jobdata_1");
+  return {
+    props: { parsedXml },
+  };
 }
