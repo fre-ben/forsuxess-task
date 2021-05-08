@@ -1,9 +1,16 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { xmlParse } from "../server/xmlParser";
+import { readXml } from "../server/xmlReader";
+import { parseXml } from "../utils/helpers";
 
-export default function Home({ parsedXml }) {
+type HomeProps = {
+  parsedXml: any;
+};
+
+export default function Home({ parsedXml }: HomeProps) {
   const data = parsedXml;
+  console.log(data.jobList.job[0]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -17,7 +24,9 @@ export default function Home({ parsedXml }) {
 }
 
 export async function getStaticProps() {
-  const parsedXml = xmlParse("jobdata_1");
+  const xmlFile = await readXml("jobdata_1");
+  const parsedXml = await parseXml(xmlFile);
+
   return {
     props: { parsedXml },
   };
