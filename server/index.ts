@@ -3,6 +3,9 @@ import { parse } from "url";
 import next from "next";
 import path from "path";
 import fs from "fs/promises";
+import { writeJobsInDB } from "./db";
+import dotenv from "dotenv";
+dotenv.config();
 
 const dev = process.env.NODE_ENV !== "production";
 const port = process.env.PORT || 3000;
@@ -44,8 +47,10 @@ app.prepare().then(() => {
       return res.end();
     }
     // Forward to next handler
+
     handle(req, res, parsedUrl);
   }).listen(port, () => {
     console.log(`> Ready on http://localhost:${port}`);
+    writeJobsInDB(process.env.MONGODB_URL, process.env.MONGODB_NAME);
   });
 });
