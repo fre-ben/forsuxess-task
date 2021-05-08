@@ -27,14 +27,14 @@ export async function getJobs(): Promise<Job[]> {
   return jobs;
 }
 
-export async function writeJobsInDB() {
+export async function writeJobsInDB(url: string, dbName: string) {
   await connectDB(url, dbName);
   const jobsCollection = db.collection("jobs");
 
   const xmlFile = await readXml("jobdata_1");
   const parsedXml = await parseXml(xmlFile);
 
-  const singleJob = parsedXml.jobList.job[4];
+  const singleJob = parsedXml.jobList.job[6];
   // Beispielhaft ersten Eintrag lesen und entsprechend des Job Types einpflegen in DB
   const newJob: Job = {
     id: +singleJob.$.refno,
