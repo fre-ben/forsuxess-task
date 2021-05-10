@@ -1,5 +1,5 @@
 import { Db, MongoClient } from "mongodb";
-import { cleanTitle, parseXml } from "../utils/helpers";
+import { cleanTitle, mapCompanyName, parseXml } from "../utils/helpers";
 import { readXml } from "./xmlReader";
 
 let client: MongoClient = null;
@@ -34,7 +34,7 @@ export async function writeJobsInDB(url: string, dbName: string) {
   const xmlFile = await readXml("jobdata_1");
   const parsedXml = await parseXml(xmlFile);
 
-  const singleJob = parsedXml.jobList.job[6];
+  const singleJob = parsedXml.jobList.job[41];
   // Beispielhaft ersten Eintrag lesen und entsprechend des Job Types einpflegen in DB
   const newJob: Job = {
     id: +singleJob.$.refno,
@@ -42,7 +42,7 @@ export async function writeJobsInDB(url: string, dbName: string) {
       singleJob.languageSpecificElements[0].languageSpecificElement[0]
         .posTitle[0]._
     ),
-    company: singleJob.Organization[0],
+    company: mapCompanyName(singleJob.Organization[0]),
   };
 
   if (await jobsCollection.findOne({ id: newJob.id })) {
