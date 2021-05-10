@@ -34,22 +34,22 @@ export async function writeJobsInDB(url: string, dbName: string) {
   const xmlFile = await readXml("jobdata_1");
   const parsedXml = await parseXml(xmlFile);
 
-  const singleJob = parsedXml.jobList.job[41];
-  // Beispielhaft ersten Eintrag lesen und entsprechend des Job Types einpflegen in DB
-  const newJob: Job = {
-    id: +singleJob.$.refno,
-    title: cleanTitle(
-      singleJob.languageSpecificElements[0].languageSpecificElement[0]
-        .posTitle[0]._
-    ),
-    company: mapCompanyName(singleJob.Organization[0]),
-  };
+  const newJobs: Job[] = parsedXml.jobList.job.map((job) => {
+    return {
+      id: +job.$.refno,
+      title: cleanTitle(
+        job.languageSpecificElements[0].languageSpecificElement[0].posTitle[0]._
+      ),
+      company: mapCompanyName(job.Organization[0]),
+    };
+  });
 
-  if (await jobsCollection.findOne({ id: newJob.id })) {
-    console.log("Job already exists");
-    return;
-  } else {
-    console.log("Job posted");
-    return jobsCollection.insertOne(newJob);
-  }
+  newJobs.forEach(async (job) => {
+    if (await jobsCollection.findOne({ id: job.id })) {
+      return;
+    } else {
+      console.log("Job posted");
+      return jobsCollection.insertOne(job);
+    }
+  });
 }
