@@ -14,7 +14,7 @@ const url = process.env.MONGODB_URL;
 const dbName = process.env.MONGODB_NAME;
 
 export type Job = {
-  id: number;
+  id: string;
   title: string;
   company: string;
 };
@@ -39,9 +39,16 @@ export async function writeJobsInDB(url: string, dbName: string) {
   const xmlFile = await readXml("jobdata_1");
   const parsedXml = await parseXml(xmlFile);
 
-  const newJobs: Job[] = parsedXml.jobList.job.map((job) => {
+  const xmlFileTwo = await readXml("jobdata_2");
+  const parsedXmlTwo = await parseXml(xmlFileTwo);
+
+  const parsedXmlTwoJobPath =
+    parsedXmlTwo.envEnvelope.envBody[0].ns2getAdvertisementsByPageResponse[0]
+      .ns2advertisementResult[0].advertisements[0].advertisement;
+
+  const newJobsXmlOne: Job[] = parsedXml.jobList.job.map((job) => {
     return {
-      id: +job.$.refno,
+      id: job.$.refno,
       title: cleanTitle(
         job.languageSpecificElements[0].languageSpecificElement[0].posTitle[0]._
       ),
@@ -49,5 +56,14 @@ export async function writeJobsInDB(url: string, dbName: string) {
     };
   });
 
-  await postJobToCollection(newJobs, jobsCollection);
+  const newJobsXmlTwo: Job[] = parsedXmlTwoJobPath.map((job) => {
+    return {
+      id: job.jobNumber[0],
+      title: job.jobTitle[0],
+      company: job.organizations[0].organization[1].value[0],
+    };
+  });
+
+  await postJobToCollection(newJobsXmlOne, jobsCollection);
+  await postJobToCollection(newJobsXmlTwo, jobsCollection);
 }
