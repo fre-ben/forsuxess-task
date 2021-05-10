@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs/promises";
 import { writeJobsInDB } from "./db";
 import dotenv from "dotenv";
+import cron from "node-cron";
 dotenv.config();
 
 const dev = process.env.NODE_ENV !== "production";
@@ -52,5 +53,10 @@ app.prepare().then(() => {
   }).listen(port, () => {
     console.log(`> Ready on http://localhost:${port}`);
     writeJobsInDB(process.env.MONGODB_URL, process.env.MONGODB_NAME);
+
+    cron.schedule("* */3 * * *", () => {
+      console.log("Cronjob executing");
+      writeJobsInDB(process.env.MONGODB_URL, process.env.MONGODB_NAME);
+    });
   });
 });
