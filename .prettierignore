@@ -13,3 +13,6 @@
 # production
 /build
 /storybook-static
+
+# misc
+/utils/from_fs
