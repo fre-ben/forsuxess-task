@@ -1,4 +1,11 @@
 import { Db, MongoClient } from "mongodb";
+import {
+  cleanTitle,
+  mapCompanyName,
+  parseXml,
+  postJobToCollection,
+} from "../utils/helpers";
+import { readXml } from "./xmlReader";
 
 let client: MongoClient = null;
 let db: Db = null;
@@ -17,10 +24,30 @@ export async function connectDB(url: string, dbName: string) {
   db = client.db(dbName);
 }
 
-export async function getJobs() {
+export async function getJobs(): Promise<Job[]> {
   await connectDB(url, dbName);
 
-  const jobs = await db.collection("jobs").find({}).toArray();
+  const jobs: Job[] = await db.collection("jobs").find({}).toArray();
 
   return jobs;
+}
+
+export async function writeJobsInDB(url: string, dbName: string) {
+  await connectDB(url, dbName);
+  const jobsCollection = db.collection("jobs");
+
+  const xmlFile = await readXml("jobdata_1");
+  const parsedXml = await parseXml(xmlFile);
+
+  const newJobs: Job[] = parsedXml.jobList.job.map((job) => {
+    return {
+      id: +job.$.refno,
+      title: cleanTitle(
+        job.languageSpecificElements[0].languageSpecificElement[0].posTitle[0]._
+      ),
+      company: mapCompanyName(job.Organization[0]),
+    };
+  });
+
+  await postJobToCollection(newJobs, jobsCollection);
 }

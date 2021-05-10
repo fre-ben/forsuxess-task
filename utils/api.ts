@@ -8,3 +8,9 @@ export async function fetchUrl<T>(url: string): Promise<T> {
 export async function fetchJobs(): Promise<Job[]> {
   return await fetchUrl("/api/jobs");
 }
+
+export async function updateJobs() {
+  await fetch("/api/jobs", {
+    method: "POST",
+  });
+}

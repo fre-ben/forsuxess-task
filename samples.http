@@ -1,0 +1,5 @@
+### GET JOBS
+GET http://localhost:3000/api/jobs
+
+### POST JOBS
+POST http://localhost:3000/api/jobs
