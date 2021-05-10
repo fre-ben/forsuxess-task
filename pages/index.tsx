@@ -33,7 +33,6 @@ export default function Jobs() {
       </div>
     ));
   };
-  1;
 
   return (
     <div className={styles.container}>
