@@ -21,6 +21,7 @@
 *.pem
 .eslintcache
 .env
+/utils/from_fs
 
 # debug
 npm-debug.log*
