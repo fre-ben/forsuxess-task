@@ -1,4 +1,6 @@
+import { Collection } from "mongodb";
 import xml2js from "xml2js";
+import type { Job } from "../server/db";
 
 const parser = new xml2js.Parser();
 
@@ -80,4 +82,18 @@ const companyMapping = {
 
 export function mapCompanyName(companyID: string): string {
   return companyID.replace(companyID, companyMapping[companyID]);
+}
+
+export async function postJobToCollection(
+  jobs: Job[],
+  dbCollection: Collection<any>
+) {
+  jobs.forEach(async (job) => {
+    if (await dbCollection.findOne({ id: job.id })) {
+      return;
+    } else {
+      console.log("Job posted");
+      return dbCollection.insertOne(job);
+    }
+  });
 }

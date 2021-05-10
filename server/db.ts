@@ -1,5 +1,10 @@
 import { Db, MongoClient } from "mongodb";
-import { cleanTitle, mapCompanyName, parseXml } from "../utils/helpers";
+import {
+  cleanTitle,
+  mapCompanyName,
+  parseXml,
+  postJobToCollection,
+} from "../utils/helpers";
 import { readXml } from "./xmlReader";
 
 let client: MongoClient = null;
@@ -44,12 +49,5 @@ export async function writeJobsInDB(url: string, dbName: string) {
     };
   });
 
-  newJobs.forEach(async (job) => {
-    if (await jobsCollection.findOne({ id: job.id })) {
-      return;
-    } else {
-      console.log("Job posted");
-      return jobsCollection.insertOne(job);
-    }
-  });
+  await postJobToCollection(newJobs, jobsCollection);
 }
